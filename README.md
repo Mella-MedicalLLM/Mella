@@ -1,5 +1,6 @@
-### (NLP, 생성형AI)
 # 의료 관련 질문 답변 LLM
+### (NLP, 생성형AI)
+### [Notion](https://jeonhui.notion.site/Medical-LLM-4f1496be9ef54d769707b6e0ba30d15d?pvs=4)
 
 ## 데이터
 
