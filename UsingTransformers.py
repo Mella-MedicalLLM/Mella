@@ -17,7 +17,7 @@ pipeline = transformers.pipeline(
 )
 
 sequences = pipeline(
-    'I liked "Breaking Bad" and "Band of Brothers". Do you have any recommendations of other shows I might like?\n',
+    'i’m absolutely worried sick about getting coronavirus and what it would mean for me if i got it, because of my diabetes. is there anything you can say that can help me in any way? my anxiety is so high. thank you.\n',
     do_sample=True,
     top_k=10,
     num_return_sequences=1,
