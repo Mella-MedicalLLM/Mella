@@ -1,6 +1,9 @@
 ### LLaMA ###
 llama/
 
+### Large Files ###
+medmcqa*
+
 ### JetBrains ###
 .idea/
 venv/
