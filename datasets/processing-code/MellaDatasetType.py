@@ -20,6 +20,7 @@ class MellaDatasetType(StrEnum):
     MedicalDialog = "medical_dialog"
     Medmcqa = "medmcqa"
     MedQA = "MedQA-USMLE-4-options"
+    MedQuAD = "MedQuAD"
 
     @staticmethod
     def getDatasetType(mellaDatasetTypeString: str):
@@ -30,6 +31,8 @@ class MellaDatasetType(StrEnum):
             return MellaDatasetType.Medmcqa
         elif MellaDatasetType.MedQA.value.lower() == datatypeString:
             return MellaDatasetType.MedQA
+        elif MellaDatasetType.MedQuAD.value.lower() == datatypeString:
+            return MellaDatasetType.MedQuAD
 
     def getDatasetProcessor(self):
         if self == MellaDatasetType.MedicalDialog:
@@ -38,6 +41,8 @@ class MellaDatasetType(StrEnum):
             return MedmcqaDatasetProcessor()
         elif self == MellaDatasetType.MedQA:
             return MedQADatasetProcessor()
+        elif self == MellaDatasetType.MedQuAD:
+            return MedQuADDatasetProcessor()
 
 
 class DatasetProcessor(metaclass=ABCMeta):
@@ -48,16 +53,16 @@ class DatasetProcessor(metaclass=ABCMeta):
     def transform(self, dataset):
         pass
 
-    def toText(self, instruction, input, output):
+    def toText(self, instruction, output):
         # prompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n"
         # if input != "" or input is None:
         #     return f"{prompt}### Instruction:\n{instruction}\n### Input:\n{input}\n### Response:\n{output}"
         # return f"{prompt}### Instruction:\n{instruction}\n### Response:\n{output}"
         return f"<s>[INST] {instruction} [/INST] {output} </s>"
 
-    def append(self, instruction, input, output):
+    def append(self, instruction, output):
         # data = pd.DataFrame({"instruction": [instruction], "input": [input], "output": [output],
-        data = pd.DataFrame({"text": [self.toText(instruction, input, output)]})
+        data = pd.DataFrame({"text": [self.toText(instruction, output)]})
         self.dataframe = pd.concat([self.dataframe, data])
 
 
@@ -77,7 +82,7 @@ class MedicalDialogDatasetProcessor(DatasetProcessor):
             instruction = dialog["patient"].strip()
             input = ""
             output = dialog["doctor"].strip()
-            self.append(instruction, input, output)
+            self.append(instruction, output)
         return self.dataframe
 
 
@@ -103,9 +108,8 @@ class MedmcqaDatasetProcessor(DatasetProcessor):
             cop = dataset.loc[idx, 'cop']
             options = dataset.loc[idx, ['opa', 'opb', 'opc', 'opd']]
             instruction = dataset.loc[idx, 'question'].strip()
-            input = ""
             output = self.get_output(exp, cop, *options).strip()
-            self.append(instruction, input, output)
+            self.append(instruction, output)
         return self.dataframe
 
 
@@ -115,7 +119,18 @@ class MedQADatasetProcessor(DatasetProcessor):
             return
         for idx in dataset.index:
             instruction = dataset.loc[idx, 'question'].strip()
-            input = ""
             output = dataset.loc[idx, 'answer'].strip()
-            self.append(instruction, input, output)
+            self.append(instruction, output)
+        return self.dataframe
+
+
+class MedQuADDatasetProcessor(DatasetProcessor):
+    def transform(self, dataset):
+        if dataset is None:
+            return
+        for idx in dataset.index:
+            instruction = dataset.loc[idx, 'Question'].strip()
+            instruction = re.sub(r" *\?", "?", instruction)
+            output = dataset.loc[idx, 'Answer'].strip()
+            self.append(instruction, output)
         return self.dataframe

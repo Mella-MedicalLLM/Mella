@@ -2,15 +2,13 @@ import csv
 import json
 import os
 import pandas as pd
-import numpy as np
-
 
 class DatasetController:
-    base_dataset_path = "../processed"
+    base_dataset_path = "../processed-dataset"
     save_path = None
     dataset_header = ["text"]
 
-    def __init__(self, save_path="../processed/combined", max_length=None, keywords=None):
+    def __init__(self, save_path="../processed-dataset/combined", max_length=None, keywords=None):
         self.dataset = None
         self.save_path = save_path
         self.max_length = max_length
@@ -31,7 +29,6 @@ class DatasetController:
                 if os.path.isfile(dataset_path):
                     dataset = pd.read_csv(dataset_path)
                     entire_dataset = pd.concat([entire_dataset, dataset])
-            # train, validation, test = test_validation_test_split(entire_dataset, 0.8, 0.1)
 
             if max_length is not None:
                 mask = entire_dataset.apply(lambda x: len(x[0]) < max_length, axis=1)

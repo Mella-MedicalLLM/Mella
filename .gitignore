@@ -32,5 +32,5 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
-./datasets/origin
-./dataset/processed
+datasets/default-dataset/
+datasets/processed-dataset/

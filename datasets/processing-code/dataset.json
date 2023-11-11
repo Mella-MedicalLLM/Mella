@@ -1,0 +1,11 @@
+{
+  "dataset": [
+    {
+      "name_or_path": "../default-dataset/MedQuAD",
+      "options": [],
+      "headers": ["Question", "Answer"],
+      "type": "xml",
+      "xpath": ".//QAPair"
+    }
+  ]
+}

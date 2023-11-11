@@ -19,8 +19,7 @@ class DataProcessingModel:
     def all_data_processing(self, path):
         with open('dataset.json') as f:
             json_object = json.load(f)
-        self.dataset_names = list(map(lambda x: x["name"].split("/")[-1], json_object["dataset"]))
-
+        self.dataset_names = list(map(lambda x: x["name_or_path"].split("/")[-1], json_object["dataset"]))
         for dataset_name in self.dataset_names:
             self.data_processing(path, dataset_name)
 
@@ -44,5 +43,5 @@ class DataProcessingModel:
 
 
 model = DataProcessingModel()
-model.all_data_processing("../origin")
-model.save_all_processed_dataset("../processed")
+model.all_data_processing("../default-dataset")
+model.save_all_processed_dataset("../processed-dataset")
