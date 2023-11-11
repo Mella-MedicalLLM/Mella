@@ -1,7 +1,7 @@
-import os, sys, argparse
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
-# os.environ["PYTORCH_CUDA_ALLOC_CONF"]="max_split_size_mb=256"
+import sys
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 import torch
 from datasets import load_dataset, Dataset
@@ -22,10 +22,11 @@ from trl import SFTTrainer
 
 torch.cuda.empty_cache()
 
+
 def main(dataset_path):
     model_name = "NousResearch/Llama-2-7b-chat-hf"
     new_model = "mella"
-    
+
     dataset = Dataset.from_csv(dataset_path)
 
     ################################################################################
@@ -88,7 +89,6 @@ def main(dataset_path):
     # Load dataset (you can process it here)
     # dataset = load_dataset(dataset_name, split="train")
 
-
     # Load tokenizer and model with QLoRA configuration
     compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
 
@@ -119,7 +119,7 @@ def main(dataset_path):
     # Load LLaMA tokenizer
     tokenizer = LlamaTokenizer.from_pretrained(model_name, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.padding_side = "right" # Fix weird overflow issue with fp16 training
+    tokenizer.padding_side = "right"  # Fix weird overflow issue with fp16 training
 
     # Load LoRA configuration
     peft_config = LoraConfig(
@@ -202,8 +202,9 @@ def main(dataset_path):
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
 
+
 if __name__ == '__main__':
-    path = "../../../Desktop/MELLA/mella/datasets/train_dataset_1024.csv"
+    path = "./datasets/train_dataset_1024.csv"
     if len(sys.argv) > 1:
         path = sys.argv[1]
     main(path)

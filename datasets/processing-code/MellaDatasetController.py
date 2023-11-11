@@ -8,7 +8,10 @@ class DatasetController:
     save_path = None
     dataset_header = ["text"]
 
-    def __init__(self, save_path="../processed-dataset/combined", max_length=None, keywords=None):
+    def __init__(self, save_path="../processed-dataset/combined",
+                 max_row=None,
+                 max_length=None,
+                 keywords=None):
         self.dataset = None
         self.save_path = save_path
         self.max_length = max_length
@@ -20,15 +23,20 @@ class DatasetController:
         test_dataset = []
 
         for dataset_info in json_object["dataset"]:
-            if dataset_info["name"] is None:
+            if "name_or_path" in dataset_info.keys() is None:
                 continue
-            dataset_name = dataset_info["name"].split("/")[-1]
+            dataset_name = dataset_info["name_or_path"].split("/")[-1]
             entire_dataset = pd.DataFrame(columns=self.dataset_header)
+            dataset_row_count = 0
             for dataset_type in ["train", "validation", "test"]:
                 dataset_path = f"{self.base_dataset_path}/{dataset_name}_{dataset_type}.csv"
                 if os.path.isfile(dataset_path):
                     dataset = pd.read_csv(dataset_path)
+                    if max_row is not None and max_row < len(dataset):
+                        dataset = dataset[:max_row]
+                    dataset_row_count += len(dataset)
                     entire_dataset = pd.concat([entire_dataset, dataset])
+            print(f"dataset_name: {dataset_name}: {dataset_row_count}")
 
             if max_length is not None:
                 mask = entire_dataset.apply(lambda x: len(x[0]) < max_length, axis=1)
@@ -92,14 +100,6 @@ class DatasetController:
         test_dataset.to_csv(f"{self.save_path}/test_dataset_{tag}.csv", index=False)
 
 
-print("### Entire")
-DatasetController().concat_datasets("entire")
-print("\n\n")
-
 print("### 1024")
-DatasetController(max_length=1024).concat_datasets()
-print("\n\n")
-
-print("### 4096")
-DatasetController(max_length=4096).concat_datasets()
+DatasetController(max_row=100000, max_length=1024).concat_datasets()
 print("\n\n")

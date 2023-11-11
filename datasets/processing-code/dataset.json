@@ -1,9 +1,45 @@
 {
   "dataset": [
     {
+      "name_or_path": "medical_dialog",
+      "options": [
+        "processed.en"
+      ],
+      "headers": [
+        "utterances"
+      ],
+      "type": "hf"
+    },
+    {
+      "name_or_path": "medmcqa",
+      "options": [],
+      "headers": [
+        "question",
+        "opa",
+        "opb",
+        "opc",
+        "opd",
+        "cop",
+        "exp"
+      ],
+      "type": "hf"
+    },
+    {
+      "name_or_path": "GBaker/MedQA-USMLE-4-options",
+      "options": [],
+      "headers": [
+        "question",
+        "answer"
+      ],
+      "type": "hf"
+    },
+    {
       "name_or_path": "../default-dataset/MedQuAD",
       "options": [],
-      "headers": ["Question", "Answer"],
+      "headers": [
+        "Question",
+        "Answer"
+      ],
       "type": "xml",
       "xpath": ".//QAPair"
     }

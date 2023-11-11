@@ -132,5 +132,6 @@ class MedQuADDatasetProcessor(DatasetProcessor):
             instruction = dataset.loc[idx, 'Question'].strip()
             instruction = re.sub(r" *\?", "?", instruction)
             output = dataset.loc[idx, 'Answer'].strip()
-            self.append(instruction, output)
+            if output != "":
+                self.append(instruction, output)
         return self.dataframe

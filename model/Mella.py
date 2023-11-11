@@ -1,3 +1,7 @@
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
 import torch
 from transformers import (
     AutoModelForCausalLM,
@@ -7,6 +11,7 @@ from transformers import (
 from peft import PeftModel
 
 class Mella:
+    device_map = {"": 0}
     base_model_name = "NousResearch/Llama-2-7b-chat-hf"
     model_name = "mella"
     base_model = None
@@ -17,7 +22,8 @@ class Mella:
             self.base_model_name,
             low_cpu_mem_usage=True,
             return_dict=True,
-            torch_dtype=torch.float16
+            torch_dtype=torch.float16,
+            device_map=self.device_map,
         )
         model = PeftModel.from_pretrained(self.base_model, self.model_name)
         model = model.merge_and_unload()
@@ -26,11 +32,23 @@ class Mella:
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.padding_side = "right"
         self.tokenizer = tokenizer
+        self.pipeline = pipeline(
+            "text-generation",
+            model=self.model,
+            tokenizer=self.tokenizer,
+            torch_dtype=torch.float16,
+            device_map=self.device_map,
+            return_full_text=False,
+        )
 
-    def text_generation(self, prompt: str, base_model: bool = False):
-        model = self.model
-        if base_model:
-            model = self.base_model
-        pipe = pipeline(task="text-generation", model=model, tokenizer=self.tokenizer, max_length=1024)
-        result = pipe(f"<s>[INST]{prompt}[/INST]")
-        return result[0]['generated_text']
+    def text_generation(self, prompt: str):
+        prompt = f"<s>[INST] {prompt} [/INST]"
+        sequences = self.pipeline(
+            prompt,
+            do_sample=True,
+            top_k=10,
+            num_return_sequences=1,
+            eos_token_id=self.tokenizer.eos_token_id,
+            max_length=256,
+        )
+        return sequences[0]['generated_text']
